@@ -4,6 +4,23 @@ from numibank_exceptions import CustomerAlreadyExistsError, CustomerNotFoundErro
 from numibank import NumiBank
 
 class TestNumiBank(unittest.TestCase):
+    """
+    Test Runner for the edge cases of the numibank class
+    Customer Management:
+        Creating a customer with an already existing ID (test_create_customer_already_exists)
+    Loan Management:
+        Granting a loan to a non-existent customer (test_lend_customer_not_found)
+        Loan amount validation (assuming ValueError is raised for invalid amounts in Loan constructor) (test_lend_invalid_loan_amount)
+        Loan repayment processing (test_repay_success)
+    Loan Repayment Scenarios:
+        Partial loan repayment (test_loan_repayment_scenario)
+        Attempting to overpay a loan (test_loan_repayment_scenario)
+    Not handled at the moment:
+        Loan Validation: Expand current tests to cover more scenarios like negative, overpayment etc. Also consider more contexual errors.
+        Loan Repayment: Same as above, and specifially to habdle negative repayment amounts.
+        Error Handling: The test_lend_invalid_loan_amount currently asserts a ValueError. I took an easy way out here.
+    TODO WHat if I delete that custimer during loan creating? Hmm may be considered an edge case but the tests can use Mocking and Patchiung to handle this scenario for me, thus separating customer creation and loan creation and processing.
+    """
     def setUp(self):
         self.bank = NumiBank()
 
