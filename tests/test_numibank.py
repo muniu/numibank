@@ -78,11 +78,11 @@ class TestNumiBank(unittest.TestCase):
         amount = 5.0  # Below minimum loan amount
         interest_rate = 0.2
         customer = self.bank.create_customer(customer_id, name)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError): #As lend returns two types of Exceptions, asserting ValueError to provision for both. Given more time I'd have expanded these errors into codes and handled them here better.
             self.bank.lend(
                 customer.customer_id,
                 customer.name,
-                Decimal(amount),  # Negative loan amount
+                Decimal(amount),
                 Decimal(interest_rate),
             )
 
