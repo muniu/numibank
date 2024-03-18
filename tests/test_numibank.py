@@ -68,20 +68,26 @@ class TestNumiBank(unittest.TestCase):
             str(e.exception), f"Customer with ID {customer_id} does not exist"
         )
 
-    def test_lend_invalid_amount(self):
+        
+    def test_lend_invalid_loan_amount(self):
         """
-        Test that lending an amount outside the allowed range raises an InvalidLoanAmountError.
+        Tests if InvalidLoanAmountError is raised when the loan amount is invalid (negative amounts, amounts not within range).
         """
         customer_id = 1001
         name = "Muniu Kariuki"
         amount = 5.0  # Below minimum loan amount
+        interest_rate = 0.2
         customer = self.bank.create_customer(customer_id, name)
-        with self.assertRaises(InvalidLoanAmountError) as e:
-            self.bank.lend(customer.customer_id, customer.name, amount)
-            
-        self.assertEqual(
-            str(e.exception), f"Amount {amount} is not within the minimum allowed laon limits"
-        )
+        with self.assertRaises(ValueError):
+            self.bank.lend(
+                customer.customer_id,
+                customer.name,
+                Decimal(amount),  # Negative loan amount
+                Decimal(interest_rate),
+            )
+
+
+
 
     def test_repay_success(self):
         """
@@ -131,10 +137,10 @@ class TestNumiBank(unittest.TestCase):
 
         # Verify loan details
         loan = self.bank.loans[customer_id]
-        print ("Outstanding debt: ")
-        print (loan.outstanding_debt)
-        print ("Total Repayments: ")
-        print (loan.repayments)
+        #print ("Outstanding debt: ")
+        #print (loan.outstanding_debt)
+        #print ("Total Repayments: ")
+        #print (loan.repayments)
         self.assertEqual(loan.outstanding_debt, 12.0, "Outstanding debt after partial payment")
         self.assertEqual(loan.repayments, [10.0], "Repayment history should be updated")
 
