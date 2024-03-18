@@ -1,4 +1,5 @@
 from numibank_validators import Validator
+from decimal import Decimal
 
 
 class Customer:
@@ -28,24 +29,23 @@ class Loan:
     """
 
     def __init__(
-        self, customer_id: int, amount: float, interest_rate: float, customer_name: str
+        self, customer_id: int, customer_name: str,amount: Decimal, interest_rate: Decimal
     ):
         """
         Initializes a Loan object.
 
         Args:
         customer_id: The customer's ID.
-        amount: The loan amount (positive float).
-        interest_rate: The interest rate (0.0 to 1.0, representing a percentage).
         customer_name: The customer's name.
-
+        amount: The loan amount (positive decimal).
+        interest_rate: The interest rate as a decimal between 0.0 (inclusive) and 1.0 (inclusive).
         Raises:
         ValueError: If the amount or interest rate is invalid.
         """
         self.customer_id = customer_id
+        self.customer_name = customer_name
         self.amount = amount
         self.interest_rate = interest_rate
-        self.customer_name = customer_name
         self.repayments = []  # List to store repayment amounts.
 
         self.validate_loan_amount(amount)
@@ -53,32 +53,36 @@ class Loan:
 
     def validate_loan_amount(self, amount):
         """
-        TODO this docstring in a while
+        Validate that the loan amount is within the range allowed
         """
         Validator.is_valid_loan_amount(amount)
 
     def validate_interest_rate(self, interest_rate):
         """
-        TODO this docstring in a while
+        Validate that the interest rate is within the allowed range
         """
         Validator.is_valid_interest_rate(interest_rate)
+
 
     @property
     def outstanding_debt(self):
         """
-        Calculates and returns the outstanding debt for the loan.
-        This is implemented as read-only (without a seeter) to prevent accidental modification of the calculated value.
+        Calculates and returns the outstanding debt for the loan (including accrued interest).
+
+        This assumes simple interest, where interest is charged only on the original loan amount.
+        TODO For more complex scenarios, we should consider implementing compound interest.
         """
-        return self.amount * (1 + self.interest_rate) - sum(
-            repayment for repayment in self.repayments
-        )
+        if not self.repayments:  # This ensures that if there are no repayments, we simply return the original loan amount to avoid division by zero.
+            return self.amount
+        total_interest = self.amount * self.interest_rate
+        return self.amount + total_interest - sum(self.repayments)
 
     def add_repayment(self, amount: float) -> None:
         """
         Adds a repayment to the loan.
 
         Args:
-            amount: The repayment amount.
+            amount: The repayment amount (as a Decimal).
 
         Raises:
             ValueError: If the repayment amount is not positive.

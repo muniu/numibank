@@ -15,7 +15,8 @@ customers
 * Data validation is performed to ensure data integrity.
 
 ### Assumptions:
-* Loan amounts and interest rates are represented by positive floats.
+* Loan amounts and interest rates are represented by decimals.
+* We assume simple interest. For compound interest, we'd need to modify the outstanding_debt calculation to account for interest on interest.
 * The minimum and maximum loan amounts are configurable (currently set to defaults within the Validator class).
 
 ### Trade-offs:

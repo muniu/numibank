@@ -2,6 +2,7 @@ from typing import (
     Optional,
     Dict,
 )  # TODO I need to refresh my understanding of type hinting using the typing module. A bit rusty coming from pre-python3.5 era.
+from decimal import Decimal
 from numibank_exceptions import (
     CustomerAlreadyExistsError,
     CustomerNotFoundError,
@@ -29,13 +30,13 @@ class NumiBank:
     bank = NumiBank()
 
     # Create a customer
-    customer_id = bank.create_customer(1001, "Muniu Kariuki")
+    customer = bank.create_customer(1001, "Muniu Kariuki")
 
     # Grant a loan to the customer
-    loan = bank.lend(customer_id, "Muniu Kariuki", 1000.0, 0.05)
+    loan = bank.lend(customer.customer_id, customer.name, 1000.0, 0.05)
 
     # Repay part of the loan
-    bank.repay(customer_id, 200.0)
+    bank.repay(customer.customer_id, 200.0)
 
     # Get customer information and loan details
     customer_info = bank.get_customer_info(customer_id)
@@ -75,8 +76,7 @@ class NumiBank:
         return customer
 
     def lend(
-        self, customer_id: int, name: str, amount: float, interest_rate: float = 0.0
-    ) -> Loan:
+        self, customer_id: int, name: str, amount: Decimal, interest_rate: Decimal = 0.0) -> Loan:
         """
         Initiates a loan for a customer, creating a new Loan object.
 
@@ -85,8 +85,7 @@ class NumiBank:
         name: The customer's full name as a string.
         amount: The loan amount as a positive float.
         interest_rate: The interest rate for the loan (default 0.0). By assigning a default value,
-        interest_rate becomes an optional argument.
-        This means when calling the lend function, you can omit the interest_rate argument if you want a loan with zero interest.
+        interest_rate becomes an optional argument, & you can omit the interest_rate argument if you want a loan with zero interest.
 
         Returns:
         A Loan object representing the created loan, or None if loan creation fails.
@@ -99,20 +98,19 @@ class NumiBank:
             raise CustomerNotFoundError(
                 f"Customer with ID {customer_id} does not exist"
             )
-
         try:
-            loan = Loan(
-                self, customer_id, amount, interest_rate
+            loan = Loan(customer_id, name, amount, interest_rate
             )  # Validation happens in Loan constructor
             self.loans[customer_id] = loan
             return loan
         except (CustomerNotFoundError, InvalidLoanAmountError) as e:
             # Re-raise the exception for the calling code to handle.
             # Figured might be better than print, as it offers more flexibility for the caller.
-            # TODO could go as far as defining error codes (e.g., integers) to represent different failure scenarios and return the code instead of None. The calling code would then need to check the return value and handle the error accordingly.
+            # TODO could go as far as defining error codes (e.g., integers) to represent different failure scenarios and return the code instead of None.
+            # The calling code would then need to check the return value and handle the error accordingly.
             raise e
 
-    def repay(self, customer_id: int, amount: float) -> None:
+    def repay(self, customer_id: int, amount: Decimal) -> None:
         """
         Processes a loan repayment for a customer.
 
@@ -127,10 +125,10 @@ class NumiBank:
         if not loan:
             raise CustomerNotFoundError(f"Customer with ID {customer_id} not found")
         loan = self.loans[customer_id]
-        remaining_balance = loan.calculate_outstanding_debt() - sum(
+        
+        remaining_balance = loan.outstanding_debt - sum(
             repayment for repayment in loan.repayments
         )
-
         # Check for overpayment and provide informative message
         if amount > remaining_balance:
             print(
