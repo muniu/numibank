@@ -1,4 +1,5 @@
 import unittest
+from decimal import Decimal
 from numibank_exceptions import CustomerAlreadyExistsError, CustomerNotFoundError, InvalidLoanAmountError
 from numibank import NumiBank
 

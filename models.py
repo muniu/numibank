@@ -1,7 +1,5 @@
-from numibank_validators import Validator
 from decimal import Decimal
-
-
+from numibank_validators import Validator
 class Customer:
     """
     Customer Object

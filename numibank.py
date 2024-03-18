@@ -25,18 +25,20 @@ class NumiBank:
     **Example Usage:**
 
     ```python
+    # Example usage:
+
     from numibank import NumiBank
-
     bank = NumiBank()
-
     # Create a customer
     customer = bank.create_customer(1001, "Muniu Kariuki")
-
     # Grant a loan to the customer
-    loan = bank.lend(customer.customer_id, customer.name, 1000.0, 0.05)
-
-    # Repay part of the loan
-    bank.repay(customer.customer_id, 200.0)
+    loan = bank.lend(customer.customer_id, customer.name, Decimal(100.0), Decimal(0.05)) # 5% interest rate and our max we can loan is 100
+    # Fetch  the outstanding
+    outstanding_debt = loan.outstanding_debt
+    print(f"Outstanding debt (no repayments yet): {outstanding_debt}")  # Expected Output: 105
+    # let’s do a repayement
+    loan.add_repayment(Decimal(5.0))  # Add a repayment
+    print(f"Outstanding debt after repayment: {loan.outstanding_debt}")  # Expected Output: 100
 
     # Get customer information and loan details
     customer_info = bank.get_customer_info(customer_id)
