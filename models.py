@@ -46,7 +46,9 @@ class Loan:
         self.customer_name = customer_name
         self.amount = amount
         self.interest_rate = interest_rate
-        self.repayments = []  # List to store repayment amounts.
+        #self.repayments = []  # List to store repayment amounts.
+        self.repayments: list[Decimal] = []  # List to store repayment amounts (as Decimals)
+
 
         self.validate_loan_amount(amount)
         self.validate_interest_rate(interest_rate)

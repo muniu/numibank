@@ -28,7 +28,7 @@ class Validator:
     @staticmethod
     def is_valid_interest_rate(value):
         """
-        We use a float to define interest and this function checks that the values are between 0.0 and 1.0
+        We use a Decimal to define interest and this function checks that the values are between 0.0 and 1.0
         """
         return Validator.is_within_range(value, 0.0, 1.0)
 
