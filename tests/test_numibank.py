@@ -71,23 +71,20 @@ class TestNumiBank(unittest.TestCase):
         
     def test_lend_invalid_loan_amount(self):
         """
-        Tests if InvalidLoanAmountError is raised when the loan amount is invalid (negative amounts, amounts not within range).
+        Test if InvalidLoanAmountError is raised when the loan amount is invalid (negative amounts, amounts not within range).
         """
         customer_id = 1001
         name = "Muniu Kariuki"
         amount = 5.0  # Below minimum loan amount
         interest_rate = 0.2
         customer = self.bank.create_customer(customer_id, name)
-        with self.assertRaises(ValueError): #As lend returns two types of Exceptions, asserting ValueError to provision for both. Given more time I'd have expanded these errors into codes and handled them here better.
+        with self.assertRaises(ValueError): #TODO As lend returns two types of Exceptions, asserting ValueError to provision for both. Given more time I'd have expanded these errors into codes and handled them here better.
             self.bank.lend(
                 customer.customer_id,
                 customer.name,
                 Decimal(amount),
                 Decimal(interest_rate),
             )
-
-
-
 
     def test_repay_success(self):
         """
@@ -110,7 +107,7 @@ class TestNumiBank(unittest.TestCase):
 
     def test_loan_repayment_scenario(self):
         """
-        Tests a loan repayment scenario with partial payment and exceeding payment.
+        Test a loan repayment scenario with partial payment and exceeding payment.
 
         This test follows the given scenario:
         - Apio borrows $20 at 10% interest.

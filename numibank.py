@@ -124,7 +124,7 @@ class NumiBank:
             CustomerNotFoundError: If a customer with the provided ID is not found.
             InvalidLoanAmountError: If an attempt to overpay an existing loan happens.
         """
-        loan = self.loans.get(customer_id)  # Use get to handle non-existent customer_id
+        loan = self.loans.get(customer_id)  # Use to handle non-existent customer_id
         if not loan:
             raise CustomerNotFoundError(f"Customer with ID {customer_id} not found")
         loan = self.loans[customer_id]
@@ -135,7 +135,7 @@ class NumiBank:
         # Check for overpayment and provide informative message
         if amount > remaining_balance:
             raise InvalidLoanAmountError(f"Repayment amount {amount} exceeds outstanding debt")
-            #return  # Exit the function if overpayment is attempted? 
+            #return  # TODO Exit the function if overpayment is attempted? 
 
         # Apply repayment logic if amount is less than or equal to remaining balance
         loan.repayments.append(amount)
