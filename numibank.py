@@ -85,7 +85,7 @@ class NumiBank:
         Args:
         customer_id: The unique integer identifier for the customer.
         name: The customer's full name as a string.
-        amount: The loan amount as a positive float.
+        amount: The loan amount as a positive number.
         interest_rate: The interest rate for the loan (default 0.0). By assigning a default value,
         interest_rate becomes an optional argument, & you can omit the interest_rate argument if you want a loan with zero interest.
 
@@ -118,7 +118,7 @@ class NumiBank:
 
         Args:
             customer_id: The unique integer identifier for the customer.
-            amount: The amount being repaid as a positive float.
+            amount: The amount being repaid as a positive number.
 
         Raises:
             CustomerNotFoundError: If a customer with the provided ID is not found.
@@ -133,13 +133,12 @@ class NumiBank:
         )
         # Check for overpayment and provide informative message
         if amount > remaining_balance:
-            print(
-                f"Repayment amount ({amount}) exceeds outstanding debt ({remaining_balance}). Please enter an amount less than or equal to the remaining balance."
-            )
-            return  # Exit the function if overpayment is attempted
+            raise InvalidLoanAmountError(f"Repayment amount {amount} exceeds outstanding debt")
+            #return  # Exit the function if overpayment is attempted? 
 
         # Apply repayment logic if amount is less than or equal to remaining balance
         loan.repayments.append(amount)
+        
         print(f"Repayment of {amount} successfully processed.")
 
     def get_customer_info(self, customer_id: int) -> Optional[Dict]:

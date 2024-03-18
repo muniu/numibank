@@ -45,8 +45,6 @@ class TestNumiBank(unittest.TestCase):
         amount = 20.0 #lend 20 
         interest_rate = 0.05 #at an interest rate of 5%
         customer = self.bank.create_customer(customer_id, name)
-        print ("Niko hapa ")
-        print (customer)
         loan = self.bank.lend(customer.customer_id, customer.name, amount, interest_rate)
 
         self.assertEqual(loan.customer_id, customer_id)
@@ -62,7 +60,7 @@ class TestNumiBank(unittest.TestCase):
         name = "Muniu Kariuki"
         amount = 20.0
         interest_rate = 0.05
-
+        # customer = self.bank.create_customer(customer_id, name)
         with self.assertRaises(CustomerNotFoundError) as e:
             self.bank.lend(customer_id, name, amount, interest_rate)
 
@@ -77,7 +75,7 @@ class TestNumiBank(unittest.TestCase):
         customer_id = 1001
         name = "Muniu Kariuki"
         amount = 5.0  # Below minimum loan amount
-
+        customer = self.bank.create_customer(customer_id, name)
         with self.assertRaises(InvalidLoanAmountError) as e:
             self.bank.lend(customer_id, name, amount)
 
@@ -115,18 +113,26 @@ class TestNumiBank(unittest.TestCase):
 
         customer_id = 192
         name = "Apio"
-        amount = 10.0
+        loan_amount = 20.0
         interest_rate = 0.1
+        repayment_amount = 10.0
 
         customer = self.bank.create_customer(customer_id, name)
-        # Loan creation (already mocked in setUp)
-        self.bank.lend(customer.customer_id, customer.name, amount, interest_rate)
+        self.bank.lend(customer.customer_id, customer.name, loan_amount, interest_rate)
 
         # Partial repayment
-        self.bank.repay(customer_id, 10.0)
+        self.bank.repay(customer_id, repayment_amount)
+        
+        # We want to know what the outstanding amount is i.e lend $20 at an interest of 10% = $22 as total outstanding
+        # Then repay $10 leaving the outstanding at $12
+        # Then attempt to repay $15, which should throw an error as it is above the due
 
         # Verify loan details
         loan = self.bank.loans[customer_id]
+        print ("Outstanding debt: ")
+        print (loan.outstanding_debt)
+        print ("Total Repayments: ")
+        print (loan.repayments)
         self.assertEqual(loan.outstanding_debt, 12.0, "Outstanding debt after partial payment")
         self.assertEqual(loan.repayments, [10.0], "Repayment history should be updated")
 

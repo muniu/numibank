@@ -21,7 +21,7 @@ class CustomerNotFoundError(Exception):
 
 
 class InvalidLoanAmountError(Exception):
-    """Raised when a loan amount falls outside the allowed range."""
+    """Raised when a loan amount falls outside the allowed range OR an overpayment is detected"""
 
     def __init__(self, message):
         self.message = message
