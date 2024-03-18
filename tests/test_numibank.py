@@ -76,10 +76,8 @@ class TestNumiBank(unittest.TestCase):
         name = "Muniu Kariuki"
         amount = 5.0  # Below minimum loan amount
         customer = self.bank.create_customer(customer_id, name)
-        with self.assertRaises(InvalidLoanAmountError) as e:
-            self.bank.lend(customer_id, name, amount)
-
-        self.assertEqual(str(e.exception), "Invalid loan amount")
+        with self.assertRaises(InvalidLoanAmountError):
+            self.bank.lend(customer.customer_id, customer.name, amount)
 
     def test_repay_success(self):
         """

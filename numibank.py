@@ -122,6 +122,7 @@ class NumiBank:
 
         Raises:
             CustomerNotFoundError: If a customer with the provided ID is not found.
+            InvalidLoanAmountError: If an attempt to overpay an existing loan happens.
         """
         loan = self.loans.get(customer_id)  # Use get to handle non-existent customer_id
         if not loan:
