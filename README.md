@@ -41,7 +41,7 @@ numibank/
 ├── README.md     # Documentation for the project
 ├── requirements.txt    # Contains pip requirements for the project
 └── tests/         # Folder for tests
-    └── test_numibank.py # Tests for numibank.py
+    └── test_numibank.py # Tests for bank.py
 
 ```
 

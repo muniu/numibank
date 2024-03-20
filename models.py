@@ -1,24 +1,27 @@
+from copy import copy
+from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import TypedDict, Optional
+from uuid import uuid4
+
+import constants
+from numibank_exceptions import InvalidLoanAmountError, NumiBankError, InvalidInterestRateError, \
+    InvalidLoanRepaymentAmountError
 from numibank_validators import Validator
+
+
+@dataclass
 class Customer:
     """
     Customer Object
-    """
 
-    def __init__(self, customer_id: int, name: str):
-        """
-        Initializes a Customer object.
-
-        Args:
-        customer_id: A unique id.
+    Args:
+        id: A unique id.
         name: The name of the customer.
-        """
-        self.customer_id = customer_id
-        self.name = name
-
-    @property
-    def id(self):
-        return self.customer_id
+    """
+    name: str
+    # collision of ids is possible, so we use a unique id
+    id: str = field(default_factory=lambda: str(uuid4()))
 
 
 class Loan:
@@ -27,7 +30,10 @@ class Loan:
     """
 
     def __init__(
-        self, customer_id: int, customer_name: str,amount: Decimal, interest_rate: Decimal
+            self,
+            customer: Customer,
+            amount: Decimal,
+            interest_rate: Decimal,
     ):
         """
         Initializes a Loan object.
@@ -38,31 +44,31 @@ class Loan:
         amount: The loan amount (positive decimal).
         interest_rate: The interest rate as a decimal between 0.0 (inclusive) and 1.0 (inclusive).
         Raises:
-        ValueError: If the amount or interest rate is invalid.
+        InvalidInterestRateError: If interest rate is invalid.
+        InvalidLoanAmountError: If the loan amount is invalid.
         """
-        self.customer_id = customer_id
-        self.customer_name = customer_name
+        if Validator.is_within_range(interest_rate, constants.MINIMUM_INTEREST_RATE, constants.MAXIMUM_INTEREST_RATE):
+            self.interest_rate = interest_rate
+        else:
+            raise InvalidInterestRateError(
+                f"Interest rate must be between {str(constants.MINIMUM_INTEREST_RATE)} "
+                f"and {str(constants.MAXIMUM_INTEREST_RATE)}"
+            )
+
+        if not Validator.is_within_range(amount, constants.MINIMUM_LOAN_AMOUNT, constants.MAXIMUM_LOAN_AMOUNT):
+            raise InvalidLoanAmountError(
+                f"Loan amount must be between {constants.MINIMUM_LOAN_AMOUNT} "
+                f"and {constants.MAXIMUM_LOAN_AMOUNT}"
+            )
+
         self.amount = amount
-        self.interest_rate = interest_rate
-        #self.repayments = []  # List to store repayment amounts.
-        self.repayments: list[Decimal] = []  # List to store repayment amounts (as Decimals)
 
+        if isinstance(customer, Customer):
+            self.customer = customer
+        else:
+            raise NumiBankError("Invalid customer object")
 
-        self.validate_loan_amount(amount)
-        self.validate_interest_rate(interest_rate)
-
-    def validate_loan_amount(self, amount):
-        """
-        Validate that the loan amount is within the range allowed
-        """
-        Validator.is_valid_loan_amount(amount)
-
-    def validate_interest_rate(self, interest_rate):
-        """
-        Validate that the interest rate is within the allowed range
-        """
-        Validator.is_valid_interest_rate(interest_rate)
-
+        self._repayments: list[Decimal] = []
 
     @property
     def outstanding_debt(self):
@@ -72,12 +78,28 @@ class Loan:
         This assumes simple interest, where interest is charged only on the original loan amount.
         TODO For more complex scenarios, we should consider implementing compound interest.
         """
-        if not self.repayments:  # This ensures that if there are no repayments, we simply return the original loan amount to avoid division by zero.
+        if not self._repayments:
+            # This ensures that if there are no repayments, we simply return the original loan amount
             return self.amount
-        total_interest = self.amount * self.interest_rate
-        return self.amount + total_interest - sum(self.repayments)
 
-    def add_repayment(self, amount: float) -> None:
+        total_interest = self.amount * self.interest_rate
+        return self.amount + total_interest - self.total_repayments
+
+    @property
+    def total_repayments(self):
+        """
+        Returns the total repayments made so far.
+        """
+        return sum(self._repayments)
+
+    @property
+    def repayments(self):
+        """
+        Returns a copy of the loan's repayment list. Late addition to help unit tests instead of asserting a print statement
+        """
+        return copy(self._repayments)  # Return a copy to avoid modification
+
+    def add_repayment(self, amount: Decimal) -> None:
         """
         Adds a repayment to the loan.
 
@@ -85,18 +107,15 @@ class Loan:
             amount: The repayment amount (as a Decimal).
 
         Raises:
-            ValueError: If the repayment amount is not positive.
+            InvalidLoanAmountError: If the repayment amount is negative or exceeds the outstanding debt.
         """
-        try:
-            Validator.is_positive(amount)
-            self.repayments.append(amount)
-        except ValueError as e:
-            raise ValueError(
-                f"Invalid repayment amount: {e}"
-            ) from e  # "e" preserves the original traceback for better debugging in absence of my beloved  printstacktrace in java
-    
-    def get_repayments(self):
-        """
-        Returns a copy of the loan's repayment list. Late addition to help unit tests instead of asserting a print statement
-        """
-        return self.repayments[:]  # Return a copy to avoid modification
+        if not Validator.is_positive(amount):
+            raise InvalidLoanRepaymentAmountError("Amount must be positive")
+
+        if amount > self.outstanding_debt:
+            raise InvalidLoanRepaymentAmountError("Amount exceeds outstanding debt")
+
+        self._repayments.append(amount)
+
+
+CustomerInfo = TypedDict('CustomerInfo', {'customer': Customer, 'loan': Optional[Loan]})

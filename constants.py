@@ -1,0 +1,7 @@
+from decimal import Decimal
+
+MINIMUM_LOAN_AMOUNT = Decimal(10)
+MAXIMUM_LOAN_AMOUNT = Decimal(100)
+DEFAULT_INTEREST_RATE = Decimal(0.05)
+MAXIMUM_INTEREST_RATE = Decimal(1.0)
+MINIMUM_INTEREST_RATE = Decimal(0.0)
