@@ -78,7 +78,8 @@ class NumiBank:
         return customer
 
     def lend(
-        self, customer_id: int, name: str, amount: Decimal, interest_rate: Decimal = 0.0) -> Loan:
+        self, customer_id: int, name: str, amount: Decimal, interest_rate: Decimal = 0.0
+    ) -> Loan:
         """
         Initiates a loan for a customer, creating a new Loan object.
 
@@ -101,7 +102,8 @@ class NumiBank:
                 f"Customer with ID {customer_id} does not exist"
             )
         try:
-            loan = Loan(customer_id, name, amount, interest_rate
+            loan = Loan(
+                customer_id, name, amount, interest_rate
             )  # Validation happens in Loan constructor
             self.loans[customer_id] = loan
             return loan
@@ -128,18 +130,20 @@ class NumiBank:
         if not loan:
             raise CustomerNotFoundError(f"Customer with ID {customer_id} not found")
         loan = self.loans[customer_id]
-        
+
         remaining_balance = loan.outstanding_debt - sum(
             repayment for repayment in loan.repayments
         )
         # Check for overpayment and provide informative message
         if amount > remaining_balance:
-            raise InvalidLoanAmountError(f"Repayment amount {amount} exceeds outstanding debt")
-            #return  # TODO Exit the function if overpayment is attempted? 
+            raise InvalidLoanAmountError(
+                f"Repayment amount {amount} exceeds outstanding debt"
+            )
+            # return  # TODO Exit the function if overpayment is attempted?
 
         # Apply repayment logic if amount is less than or equal to remaining balance
         loan.repayments.append(amount)
-        
+
         print(f"Repayment of {amount} successfully processed.")
 
     def get_customer_info(self, customer_id: int) -> Optional[Dict]:

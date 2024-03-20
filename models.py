@@ -1,5 +1,7 @@
 from decimal import Decimal
 from numibank_validators import Validator
+
+
 class Customer:
     """
     Customer Object
@@ -27,7 +29,11 @@ class Loan:
     """
 
     def __init__(
-        self, customer_id: int, customer_name: str,amount: Decimal, interest_rate: Decimal
+        self,
+        customer_id: int,
+        customer_name: str,
+        amount: Decimal,
+        interest_rate: Decimal,
     ):
         """
         Initializes a Loan object.
@@ -44,9 +50,10 @@ class Loan:
         self.customer_name = customer_name
         self.amount = amount
         self.interest_rate = interest_rate
-        #self.repayments = []  # List to store repayment amounts.
-        self.repayments: list[Decimal] = []  # List to store repayment amounts (as Decimals)
-
+        # self.repayments = []  # List to store repayment amounts.
+        self.repayments: list[Decimal] = (
+            []
+        )  # List to store repayment amounts (as Decimals)
 
         self.validate_loan_amount(amount)
         self.validate_interest_rate(interest_rate)
@@ -63,7 +70,6 @@ class Loan:
         """
         Validator.is_valid_interest_rate(interest_rate)
 
-
     @property
     def outstanding_debt(self):
         """
@@ -72,7 +78,9 @@ class Loan:
         This assumes simple interest, where interest is charged only on the original loan amount.
         TODO For more complex scenarios, we should consider implementing compound interest.
         """
-        if not self.repayments:  # This ensures that if there are no repayments, we simply return the original loan amount to avoid division by zero.
+        if (
+            not self.repayments
+        ):  # This ensures that if there are no repayments, we simply return the original loan amount to avoid division by zero.
             return self.amount
         total_interest = self.amount * self.interest_rate
         return self.amount + total_interest - sum(self.repayments)
@@ -94,7 +102,7 @@ class Loan:
             raise ValueError(
                 f"Invalid repayment amount: {e}"
             ) from e  # "e" preserves the original traceback for better debugging in absence of my beloved  printstacktrace in java
-    
+
     def get_repayments(self):
         """
         Returns a copy of the loan's repayment list. Late addition to help unit tests instead of asserting a print statement

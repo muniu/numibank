@@ -1,7 +1,12 @@
 import unittest
 from decimal import Decimal
-from numibank_exceptions import CustomerAlreadyExistsError, CustomerNotFoundError, InvalidLoanAmountError
+from numibank_exceptions import (
+    CustomerAlreadyExistsError,
+    CustomerNotFoundError,
+    InvalidLoanAmountError,
+)
 from numibank import NumiBank
+
 
 class TestNumiBank(unittest.TestCase):
     """
@@ -21,6 +26,7 @@ class TestNumiBank(unittest.TestCase):
         Error Handling: The test_lend_invalid_loan_amount currently asserts a ValueError. I took an easy way out here.
     TODO WHat if I delete that custimer during loan creating? Hmm may be considered an edge case but the tests can use Mocking and Patchiung to handle this scenario for me, thus separating customer creation and loan creation and processing.
     """
+
     def setUp(self):
         self.bank = NumiBank()
 
@@ -59,10 +65,12 @@ class TestNumiBank(unittest.TestCase):
         """
         customer_id = 1001
         name = "Muniu Kariuki"
-        amount = 20.0 #lend 20 
-        interest_rate = 0.05 #at an interest rate of 5%
+        amount = 20.0  # lend 20
+        interest_rate = 0.05  # at an interest rate of 5%
         customer = self.bank.create_customer(customer_id, name)
-        loan = self.bank.lend(customer.customer_id, customer.name, amount, interest_rate)
+        loan = self.bank.lend(
+            customer.customer_id, customer.name, amount, interest_rate
+        )
 
         self.assertEqual(loan.customer_id, customer_id)
         self.assertEqual(loan.amount, amount)
@@ -85,7 +93,6 @@ class TestNumiBank(unittest.TestCase):
             str(e.exception), f"Customer with ID {customer_id} does not exist"
         )
 
-        
     def test_lend_invalid_loan_amount(self):
         """
         Test if InvalidLoanAmountError is raised when the loan amount is invalid (negative amounts, amounts not within range).
@@ -95,7 +102,9 @@ class TestNumiBank(unittest.TestCase):
         amount = 5.0  # Below minimum loan amount
         interest_rate = 0.2
         customer = self.bank.create_customer(customer_id, name)
-        with self.assertRaises(ValueError): #TODO As lend returns two types of Exceptions, asserting ValueError to provision for both. Given more time I'd have expanded these errors into codes and handled them here better.
+        with self.assertRaises(
+            ValueError
+        ):  # TODO As lend returns two types of Exceptions, asserting ValueError to provision for both. Given more time I'd have expanded these errors into codes and handled them here better.
             self.bank.lend(
                 customer.customer_id,
                 customer.name,
@@ -113,14 +122,15 @@ class TestNumiBank(unittest.TestCase):
         interest_rate = 0.05
 
         customer = self.bank.create_customer(customer_id, name)
-        loan = self.bank.lend(customer.customer_id, customer.name, amount, interest_rate)
+        loan = self.bank.lend(
+            customer.customer_id, customer.name, amount, interest_rate
+        )
         repayment_amount = 2.0
 
         self.bank.repay(customer_id, repayment_amount)
 
         self.assertEqual(len(loan.repayments), 1)
         self.assertEqual(loan.repayments[0], repayment_amount)
-
 
     def test_loan_repayment_scenario(self):
         """
@@ -144,18 +154,20 @@ class TestNumiBank(unittest.TestCase):
 
         # Partial repayment
         self.bank.repay(customer_id, repayment_amount)
-        
+
         # We want to know what the outstanding amount is i.e lend $20 at an interest of 10% = $22 as total outstanding
         # Then repay $10 leaving the outstanding at $12
         # Then attempt to repay $15, which should throw an error as it is above the due
 
         # Verify loan details
         loan = self.bank.loans[customer_id]
-        #print ("Outstanding debt: ")
-        #print (loan.outstanding_debt)
-        #print ("Total Repayments: ")
-        #print (loan.repayments)
-        self.assertEqual(loan.outstanding_debt, 12.0, "Outstanding debt after partial payment")
+        # print ("Outstanding debt: ")
+        # print (loan.outstanding_debt)
+        # print ("Total Repayments: ")
+        # print (loan.repayments)
+        self.assertEqual(
+            loan.outstanding_debt, 12.0, "Outstanding debt after partial payment"
+        )
         self.assertEqual(loan.repayments, [10.0], "Repayment history should be updated")
 
         # Attempt to overpay

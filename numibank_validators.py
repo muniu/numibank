@@ -45,4 +45,3 @@ class Validator:
         Validator.is_positive(value)
         Validator.is_within_range(value, min_loan, max_loan)
         return True
-    
